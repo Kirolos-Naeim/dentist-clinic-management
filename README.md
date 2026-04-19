@@ -1,59 +1,89 @@
 # Dentist Clinic Management System
 
-Local offline-first clinic management system for dentists.
+Offline-first dentist clinic management system built with React, Vite, Express, and SQLite.
 
-## Project Structure
+## One command setup
+
+```bash
+npm run setup
+```
+
+That single command will:
+- install root dependencies
+- install backend dependencies
+- install frontend dependencies
+- create the SQLite database
+- create all required tables
+- seed sample data
+- start backend and frontend together
+
+## Project structure
 
 ```text
 dentist-clinic-management/
-├── backend/
-│   ├── data/                    # SQLite database file generated locally
-│   ├── src/
-│   │   ├── config/              # Environment loading
-│   │   ├── controllers/         # Route handlers
-│   │   ├── db/                  # SQLite connection + schema init
-│   │   ├── middleware/          # Error handling
-│   │   ├── routes/              # Express REST routes
-│   │   ├── services/            # Dashboard/report queries
-│   │   ├── utils/               # Validation/helpers
-│   │   └── server.js            # App entrypoint
-│   ├── .env.example
-│   └── package.json
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── api/                 # REST client
-│   │   ├── components/          # Reusable UI blocks
-│   │   ├── hooks/               # Data fetching hook
-│   │   ├── layouts/             # Shell/sidebar layout
-│   │   ├── pages/               # Dashboard, patients, services, inventory, billing, reports, expenses
-│   │   ├── utils/               # Formatting helpers
-│   │   ├── App.jsx
-│   │   ├── index.css
-│   │   └── main.jsx
-│   ├── .env.example
-│   ├── index.html
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── vite.config.js
-│   └── package.json
-├── .gitignore
-├── package.json
+├── backend/               # Express API and SQLite logic
+├── frontend/              # React + Vite UI
+├── database/              # Reserved local database folder for packaging/backups
+├── electron/              # Optional desktop wrapper
+├── package.json           # Root scripts for one-command setup
+├── setup.js               # Automated install + init + start script
 └── README.md
 ```
 
+## Local URLs
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:4000/api
+- Health check: http://localhost:4000/api/health
+
+## Available commands
+
+### One-click setup and launch
+
+```bash
+npm run setup
+```
+
+### Run backend + frontend together
+
+```bash
+npm run dev
+```
+
+### Initialize database only
+
+```bash
+npm run init-db
+```
+
+### Build frontend
+
+```bash
+npm run build
+```
+
+### Desktop mode
+
+```bash
+npm run desktop
+```
+
+This builds the frontend, starts backend plus preview server, then opens the app in Electron.
+
 ## Backend
 
+Features:
 - Express REST API
-- SQLite local file database
-- Zod validation
-- Auto database initialization + seed data
-- Revenue, profit, and report calculations
+- SQLite file database
+- automatic schema creation
+- automatic sample data seeding
+- offline local storage
+- revenue, cost, gross profit, and net profit calculations
 
-### Main API Endpoints
+### Main API endpoints
 
 - `GET /api/dashboard`
-- `GET /api/dashboard/reports`
+- `GET /api/dashboard/reports?range=daily|monthly`
 - `GET/POST/PUT/DELETE /api/patients`
 - `POST /api/patients/:id/visits`
 - `GET/POST/PUT/DELETE /api/services`
@@ -64,127 +94,101 @@ dentist-clinic-management/
 
 ## Frontend
 
-- React + Vite
-- Tailwind CSS modern dashboard UI
-- Chart.js revenue and service charts
-- Sidebar navigation
-- CRUD forms with validation and error handling
-- Billing screen with invoice preview
-- Reports and expense summaries
+Pages included:
+- Dashboard
+- Patients
+- Services
+- Inventory
+- Billing
+- Reports
+- Expenses
 
-## Features Covered
+UI includes:
+- Tailwind responsive layout
+- Chart.js reporting widgets
+- patient search by name or phone
+- billing preview with auto totals
+- inventory alerts
+- expense summaries
 
-### Dashboard
-- Daily revenue
-- Monthly revenue
-- Total patients
-- Net profit
-- Revenue over time chart
-- Services distribution chart
-- Inventory alerts
+## Database schema
 
-### Patients
-- Add, edit, delete patients
-- View patient visit history
-- Add visit notes with diagnosis, treatment, payment status
+The setup creates these main tables:
+- patients
+- patient_visits
+- services
+- products
+- invoices
+- invoice_items
+- expenses
 
-### Services
-- CRUD services
-- Auto total cost and profit per service
+SQLite file path:
+- `backend/data/clinic.sqlite`
 
-### Inventory
-- CRUD products
-- Low stock and expiring alerts
-- Stock value calculation
+## Sample seeded data
 
-### Billing
-- Select patient
-- Add multiple services
-- Auto total bill, cost, and profit calculation
-- Save invoice locally
+On first setup the app seeds:
+- patients
+- patient visits
+- services
+- products
+- expenses
+- sample invoices and invoice items
 
-### Reports
-- Daily and monthly reports
-- Revenue, costs, gross profit, expenses, net profit, patient count
+## Auto calculations
 
-### Expenses
-- Track rent, salaries, utilities, and other fixed costs
-- Monthly total expense summary
+### Service cost
 
-## Setup Instructions
-
-### 1. Install
-
-```bash
-cd dentist-clinic-management
-npm run install:all
+```text
+service_cost = material_cost + labor_cost + overhead_cost
 ```
 
-### 2. Configure environment files
+### Invoice total and profit
 
-Backend:
-
-```bash
-cd backend
-cp .env.example .env
+```text
+invoice_total = sum(service price × quantity)
+invoice_cost = sum(service cost × quantity)
+profit = revenue - cost
 ```
 
-Frontend:
+### Reporting
 
-```bash
-cd frontend
-cp .env.example .env
+```text
+monthly_revenue = sum(invoice total_price)
+net_profit = sum(invoice profit) - sum(expenses)
 ```
 
-### 3. Initialize database
+## Troubleshooting
+
+### Port already in use
+
+If port `4000` or `5173` is already busy:
+- stop the other process using that port
+- or update `.env` values in backend and frontend
+
+### Delete and recreate dependencies
 
 ```bash
-cd backend
+rm -rf node_modules backend/node_modules frontend/node_modules
+npm run setup
+```
+
+### Reset database
+
+```bash
+rm -f backend/data/clinic.sqlite
 npm run init-db
 ```
 
-This creates `backend/data/clinic.sqlite`.
+### Frontend cannot reach backend
 
-### 4. Run backend
-
-```bash
-cd backend
-npm run dev
-```
-
-Backend runs on `http://localhost:4000`.
-
-### 5. Run frontend
-
-In a new terminal:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Frontend runs on `http://localhost:5173`.
+Check:
+- backend is running on port `4000`
+- frontend `.env` has `VITE_API_URL=http://localhost:4000/api`
+- backend `.env` has `FRONTEND_URL=http://localhost:5173`
 
 ## Notes
 
-- Fully local, uses SQLite file storage.
-- Works offline after dependencies are installed.
-- Seed data is added automatically for services and inventory if tables are empty.
-- Frontend production build was verified successfully.
-
-## Formulas Used
-
-### Service profit
-
-```text
-profit = selling_price - (material_cost + labor_cost + overhead_cost)
-```
-
-### Daily / Monthly profit
-
-```text
-revenue = sum(invoice total_price)
-cost = sum(invoice total_cost)
-gross_profit = revenue - cost
-net_profit = gross_profit - expenses
-```
+- Works fully locally without cloud services
+- SQLite makes it easy to move or back up the database file
+- After dependencies are installed once, the app works offline

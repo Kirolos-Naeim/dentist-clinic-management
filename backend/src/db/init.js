@@ -75,6 +75,16 @@ CREATE TABLE IF NOT EXISTS expenses (
 `;
 
 const seed = async (db) => {
+  const patientCount = await db.get('SELECT COUNT(*) as count FROM patients');
+  if (patientCount.count === 0) {
+    await db.exec(`
+      INSERT INTO patients (name, phone, dob) VALUES
+      ('Mina Adel', '+971501112233', '1991-04-14'),
+      ('Sara Nabil', '+971509998877', '1988-11-03'),
+      ('Peter Sameh', '+971552223344', '1996-07-22');
+    `);
+  }
+
   const serviceCount = await db.get('SELECT COUNT(*) as count FROM services');
   if (serviceCount.count === 0) {
     await db.exec(`
@@ -93,6 +103,39 @@ const seed = async (db) => {
       ('Latex Gloves Box', 12, 15, 5, '2026-12-31'),
       ('Surgical Masks Pack', 8, 20, 6, '2026-10-01'),
       ('Composite Filling Kit', 55, 7, 3, '2026-08-15');
+    `);
+  }
+
+  const expenseCount = await db.get('SELECT COUNT(*) as count FROM expenses');
+  if (expenseCount.count === 0) {
+    await db.exec(`
+      INSERT INTO expenses (name, amount, date, category) VALUES
+      ('Clinic Rent', 4500, '2026-04-01', 'rent'),
+      ('Reception Salary', 3200, '2026-04-05', 'salary'),
+      ('Sterilization Supplies', 850, '2026-04-10', 'supplies');
+    `);
+  }
+
+  const visitCount = await db.get('SELECT COUNT(*) as count FROM patient_visits');
+  if (visitCount.count === 0) {
+    await db.exec(`
+      INSERT INTO patient_visits (patient_id, visit_date, diagnosis, treatment, payment_status, notes) VALUES
+      (1, '2026-04-03', 'Plaque buildup', 'Dental Cleaning', 'paid', 'Routine annual cleaning completed.'),
+      (2, '2026-04-08', 'Tooth sensitivity', 'Teeth Whitening consultation', 'partial', 'Patient requested staged whitening plan.'),
+      (3, '2026-04-12', 'Deep cavity', 'Root Canal', 'paid', 'Follow-up after treatment recommended in two weeks.');
+    `);
+  }
+
+  const invoiceCount = await db.get('SELECT COUNT(*) as count FROM invoices');
+  if (invoiceCount.count === 0) {
+    await db.exec(`
+      INSERT INTO invoices (patient_id, total_price, total_cost, profit, date, notes) VALUES
+      (1, 90, 55, 35, '2026-04-03', 'Routine cleaning invoice'),
+      (3, 320, 165, 155, '2026-04-12', 'Root canal procedure invoice');
+
+      INSERT INTO invoice_items (invoice_id, service_id, quantity, price, cost) VALUES
+      (1, 1, 1, 90, 55),
+      (2, 3, 1, 320, 165);
     `);
   }
 };

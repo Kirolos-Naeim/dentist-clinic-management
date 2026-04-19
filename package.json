@@ -2,10 +2,22 @@
   "name": "dentist-clinic-management-system",
   "version": "1.0.0",
   "private": true,
+  "description": "Offline-first dentist clinic management system with one-command local setup.",
+  "main": "electron/main.js",
   "scripts": {
-    "install:all": "cd backend && npm install && cd ../frontend && npm install",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
-    "init-db": "cd backend && npm run init-db"
+    "setup": "node setup.js",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "init-db": "npm --prefix backend run init-db",
+    "dev": "concurrently -k \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "start": "npm run dev",
+    "build": "npm --prefix frontend run build",
+    "desktop": "npm run build && electron ."
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "devDependencies": {
+    "electron": "^36.2.0",
+    "wait-on": "^8.0.3"
   }
 }
