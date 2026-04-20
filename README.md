@@ -1,119 +1,102 @@
-# Dentist Clinic Management System
+# Dentist Clinic Manager
 
-Offline-first dentist clinic management system built with React, Vite, Express, and SQLite.
+Offline-first dentist clinic management system packaged as an Electron desktop app, with React for the UI, Express for the API, and SQLite for local storage.
 
-## One command setup
+## Features
 
-```bash
-npm run setup
-```
-
-That single command will:
-- install root dependencies
-- install backend dependencies
-- install frontend dependencies
-- create the SQLite database
-- create all required tables
-- seed sample data
-- start backend and frontend together
+- Desktop application, no browser required in production
+- Dashboard with revenue, profit, patients, and charts
+- Patients CRUD and visit history
+- Services CRUD with cost and profit calculations
+- Inventory tracking and low-stock alerts
+- Billing and invoice generation
+- Reports with daily and monthly totals
+- Expense tracking
+- 100% offline, local SQLite database
 
 ## Project structure
 
 ```text
 dentist-clinic-management/
-├── backend/               # Express API and SQLite logic
-├── frontend/              # React + Vite UI
-├── database/              # Reserved local database folder for packaging/backups
-├── electron/              # Optional desktop wrapper
-├── package.json           # Root scripts for one-command setup
-├── setup.js               # Automated install + init + start script
+├── backend/
+├── frontend/
+├── electron/
+│   └── main.js
+├── database/
+├── package.json
+├── setup.js
 └── README.md
 ```
 
-## Local URLs
+## Development
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:4000/api
-- Health check: http://localhost:4000/api/health
-
-## Available commands
-
-### One-click setup and launch
+### One-command setup
 
 ```bash
 npm run setup
 ```
 
-### Run backend + frontend together
+This will:
+- install root dependencies
+- install backend dependencies
+- install frontend dependencies
+- create `.env` files if missing
+- initialize SQLite schema
+- seed sample data
+- start the app
+
+### Run development mode
 
 ```bash
 npm run dev
 ```
 
-### Initialize database only
+Development mode starts:
+- backend server on `http://127.0.0.1:4000`
+- frontend Vite dev server on `http://127.0.0.1:5173`
+- Electron window loading the app
 
-```bash
-npm run init-db
-```
-
-### Build frontend
+## Build Windows .exe
 
 ```bash
 npm run build
 ```
 
-### Desktop mode
+This will:
+- build the React frontend
+- package the Electron app using `electron-builder`
+- generate a Windows NSIS installer `.exe`
 
-```bash
-npm run desktop
+### Build output
+
+The generated installer will be inside:
+
+```text
+dist/
 ```
 
-This builds the frontend, starts backend plus preview server, then opens the app in Electron.
+Expected output includes a file like:
 
-## Backend
+```text
+dist/Dentist Clinic Manager Setup <version>.exe
+```
 
-Features:
-- Express REST API
-- SQLite file database
-- automatic schema creation
-- automatic sample data seeding
-- offline local storage
-- revenue, cost, gross profit, and net profit calculations
+## Desktop runtime behavior
 
-### Main API endpoints
+- Electron starts the backend automatically
+- React frontend is loaded from built files in production
+- SQLite database is stored locally
+- No internet or cloud services required
 
-- `GET /api/dashboard`
-- `GET /api/dashboard/reports?range=daily|monthly`
-- `GET/POST/PUT/DELETE /api/patients`
-- `POST /api/patients/:id/visits`
-- `GET/POST/PUT/DELETE /api/services`
-- `GET/POST/PUT/DELETE /api/products`
-- `GET/POST /api/invoices`
-- `GET /api/invoices/:id`
-- `GET/POST/PUT/DELETE /api/expenses`
+## Database
 
-## Frontend
+SQLite file path:
 
-Pages included:
-- Dashboard
-- Patients
-- Services
-- Inventory
-- Billing
-- Reports
-- Expenses
+```text
+database/clinic.sqlite
+```
 
-UI includes:
-- Tailwind responsive layout
-- Chart.js reporting widgets
-- patient search by name or phone
-- billing preview with auto totals
-- inventory alerts
-- expense summaries
-
-## Database schema
-
-The setup creates these main tables:
+Tables created automatically:
 - patients
 - patient_visits
 - services
@@ -122,73 +105,54 @@ The setup creates these main tables:
 - invoice_items
 - expenses
 
-SQLite file path:
-- `backend/data/clinic.sqlite`
+Sample data is inserted automatically on first run.
 
-## Sample seeded data
+## Available commands
 
-On first setup the app seeds:
-- patients
-- patient visits
-- services
-- products
-- expenses
-- sample invoices and invoice items
-
-## Auto calculations
-
-### Service cost
-
-```text
-service_cost = material_cost + labor_cost + overhead_cost
-```
-
-### Invoice total and profit
-
-```text
-invoice_total = sum(service price × quantity)
-invoice_cost = sum(service cost × quantity)
-profit = revenue - cost
-```
-
-### Reporting
-
-```text
-monthly_revenue = sum(invoice total_price)
-net_profit = sum(invoice profit) - sum(expenses)
+```bash
+npm run setup
+npm run dev
+npm run init-db
+npm run build
+npm run desktop
 ```
 
 ## Troubleshooting
 
-### Port already in use
+### Electron opens but frontend is blank
 
-If port `4000` or `5173` is already busy:
-- stop the other process using that port
-- or update `.env` values in backend and frontend
-
-### Delete and recreate dependencies
+Run:
 
 ```bash
-rm -rf node_modules backend/node_modules frontend/node_modules
-npm run setup
+npm run build-frontend
 ```
 
-### Reset database
+Then rebuild:
 
 ```bash
-rm -f backend/data/clinic.sqlite
+npm run build
+```
+
+### Database reset
+
+Delete the local database and recreate it:
+
+```bash
+rm -f database/clinic.sqlite
 npm run init-db
 ```
 
-### Frontend cannot reach backend
+### Port conflict in development
 
-Check:
-- backend is running on port `4000`
-- frontend `.env` has `VITE_API_URL=http://localhost:4000/api`
-- backend `.env` has `FRONTEND_URL=http://localhost:5173`
+If port `4000` or `5173` is already used, stop the other app first or update the environment files.
+
+### Windows packaging note
+
+To generate a real Windows `.exe`, run `npm run build` on Windows, or in a Windows CI/build environment. Cross-building Windows installers from Linux is not reliable.
 
 ## Notes
 
-- Works fully locally without cloud services
-- SQLite makes it easy to move or back up the database file
-- After dependencies are installed once, the app works offline
+- Fully local and offline
+- No external APIs
+- Electron package config is already included
+- Installer target is `nsis`

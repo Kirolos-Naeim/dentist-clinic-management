@@ -13,35 +13,49 @@ import productsRoutes from './routes/productsRoutes.js';
 import servicesRoutes from './routes/servicesRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
-const app = express();
+export const createServer = () => {
+  const app = express();
 
-app.use(helmet());
-app.use(cors({ origin: env.frontendUrl }));
-app.use(express.json());
-app.use(morgan('dev'));
+  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(cors({ origin: env.frontendUrl }));
+  app.use(express.json());
+  app.use(morgan('dev'));
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
 
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/patients', patientsRoutes);
-app.use('/api/services', servicesRoutes);
-app.use('/api/products', productsRoutes);
-app.use('/api/invoices', invoicesRoutes);
-app.use('/api/expenses', expensesRoutes);
+  app.use('/api/dashboard', dashboardRoutes);
+  app.use('/api/patients', patientsRoutes);
+  app.use('/api/services', servicesRoutes);
+  app.use('/api/products', productsRoutes);
+  app.use('/api/invoices', invoicesRoutes);
+  app.use('/api/expenses', expensesRoutes);
 
-app.use(errorHandler);
+  app.use(errorHandler);
 
-const start = async () => {
+  return app;
+};
+
+export const startServer = async () => {
   await initializeDatabase();
   await getDb();
-  app.listen(env.port, () => {
-    console.log(`Backend running on http://localhost:${env.port}`);
+
+  const app = createServer();
+
+  return new Promise((resolve, reject) => {
+    const server = app.listen(env.port, () => {
+      console.log(`Backend running on http://localhost:${env.port}`);
+      resolve(server);
+    });
+
+    server.on('error', reject);
   });
 };
 
-start().catch((error) => {
-  console.error('Server failed to start', error);
-  process.exit(1);
-});
+if (process.argv[1] && process.argv[1].endsWith('server.js')) {
+  startServer().catch((error) => {
+    console.error('Server failed to start', error);
+    process.exit(1);
+  });
+}

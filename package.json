@@ -2,22 +2,54 @@
   "name": "dentist-clinic-management-system",
   "version": "1.0.0",
   "private": true,
-  "description": "Offline-first dentist clinic management system with one-command local setup.",
+  "description": "Offline-first dentist clinic management system with Electron desktop packaging.",
   "main": "electron/main.js",
+  "author": "OpenClaw",
   "scripts": {
     "setup": "node setup.js",
     "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
     "init-db": "npm --prefix backend run init-db",
-    "dev": "concurrently -k \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
-    "start": "npm run dev",
-    "build": "npm --prefix frontend run build",
-    "desktop": "npm run build && electron ."
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173",
+    "electron": "wait-on http://127.0.0.1:4000/api/health http://127.0.0.1:5173 && electron .",
+    "dev": "concurrently -k \"npm run backend\" \"npm run frontend\" \"npm run electron\"",
+    "build-frontend": "npm --prefix frontend run build",
+    "build": "npm run build-frontend && electron-builder",
+    "desktop": "npm run build"
   },
   "dependencies": {
     "concurrently": "^9.1.2"
   },
   "devDependencies": {
     "electron": "^36.2.0",
+    "electron-builder": "^24.13.3",
     "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "com.dentist.clinic",
+    "productName": "Dentist Clinic Manager",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "backend/**/*",
+      "frontend/dist/**/*",
+      "database/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }
