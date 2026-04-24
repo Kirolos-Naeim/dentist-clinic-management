@@ -10,40 +10,53 @@ const formatProduct = (product) => ({
 });
 
 export const getProducts = async (_req, res) => {
-  const db = await getDb();
-  const products = await db.all('SELECT * FROM products ORDER BY id DESC');
+  const db = getDb();
+  const products = db.prepare('SELECT * FROM products ORDER BY id DESC').all();
   res.json(products.map(formatProduct));
 };
 
 export const createProduct = async (req, res) => {
   const payload = productSchema.parse(req.body);
-  const db = await getDb();
-  const result = await db.run(
-    'INSERT INTO products (name, unit_cost, quantity, reorder_level, expiry_date) VALUES (?, ?, ?, ?, ?)',
-    [payload.name, payload.unit_cost, payload.quantity, payload.reorder_level, payload.expiry_date || null]
+  const db = getDb();
+  const insert = db.prepare(
+    'INSERT INTO products (name, unit_cost, quantity, reorder_level, expiry_date) VALUES (?, ?, ?, ?, ?)'
   );
-  const product = await db.get('SELECT * FROM products WHERE id = ?', [result.lastID]);
+  const result = insert.run(
+    payload.name,
+    payload.unit_cost,
+    payload.quantity,
+    payload.reorder_level,
+    payload.expiry_date || null
+  );
+  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(formatProduct(product));
 };
 
 export const updateProduct = async (req, res) => {
   const payload = productSchema.parse(req.body);
-  const db = await getDb();
-  const existing = await db.get('SELECT id FROM products WHERE id = ?', [req.params.id]);
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM products WHERE id = ?').get(req.params.id);
   if (!existing) throw new AppError('Product not found', 404);
 
-  await db.run(
-    'UPDATE products SET name = ?, unit_cost = ?, quantity = ?, reorder_level = ?, expiry_date = ? WHERE id = ?',
-    [payload.name, payload.unit_cost, payload.quantity, payload.reorder_level, payload.expiry_date || null, req.params.id]
+  const update = db.prepare(
+    'UPDATE products SET name = ?, unit_cost = ?, quantity = ?, reorder_level = ?, expiry_date = ? WHERE id = ?'
+  );
+  update.run(
+    payload.name,
+    payload.unit_cost,
+    payload.quantity,
+    payload.reorder_level,
+    payload.expiry_date || null,
+    req.params.id
   );
 
-  const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
+  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
   res.json(formatProduct(product));
 };
 
 export const deleteProduct = async (req, res) => {
-  const db = await getDb();
-  const result = await db.run('DELETE FROM products WHERE id = ?', [req.params.id]);
+  const db = getDb();
+  const result = db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
   if (!result.changes) throw new AppError('Product not found', 404);
   res.status(204).send();
 };
