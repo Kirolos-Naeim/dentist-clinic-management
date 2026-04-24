@@ -2,7 +2,6 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
-import waitOn from 'wait-on';
 import { startServer } from '../backend/src/server.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,10 +36,15 @@ const createWindow = async () => {
 
   if (isDev) {
     await mainWindow.loadURL('http://127.0.0.1:5173');
+    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.setZoomFactor(1.0);
     return;
   }
 
   await mainWindow.loadFile(path.join(frontendDir, 'dist', 'index.html'));
+  // Uncomment for debugging in production
+  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.setZoomFactor(1.0);
 };
 
 const startAppServices = async () => {
@@ -48,12 +52,19 @@ const startAppServices = async () => {
   process.env.DB_PATH = process.env.DB_PATH || '../database/clinic.sqlite';
   process.env.FRONTEND_URL = isDev ? 'http://127.0.0.1:5173' : 'app://-';
 
-  backendServer = await startServer();
+  try {
+    backendServer = await startServer();
+    console.log('Backend server started successfully');
+  } catch (error) {
+    console.error('Failed to start backend server:', error);
+    throw error;
+  }
 
   if (isDev) {
     frontendProcess = spawnFrontendDevServer();
+    const { default: waitOn } = await import('wait-on');
     await waitOn({
-      resources: ['http://127.0.0.1:4000/api/health', 'http://127.0.0.1:5173'],
+      resources: ['http://127.0.0.1:3000/api/health', 'http://127.0.0.1:5173'],
       timeout: 60000,
     });
   }

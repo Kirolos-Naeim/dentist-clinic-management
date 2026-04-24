@@ -1,6 +1,59 @@
-node_modules
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production builds
+dist/
+build/
+frontend/dist/
+
+# Logs
+*.log
+
+# Environment variables
 .env
-backend/data
-frontend/dist
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Electron specific
+app/dist/
+releases/
+
+# Database files (if using local databases)
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Lock files (optional, but sometimes ignored if using different managers)
 backend/package-lock.json
 frontend/package-lock.json
+# package-lock.json
+# yarn.lock

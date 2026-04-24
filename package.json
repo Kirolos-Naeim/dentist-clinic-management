@@ -13,14 +13,23 @@
     "frontend": "npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173",
     "electron": "wait-on http://127.0.0.1:4000/api/health http://127.0.0.1:5173 && electron .",
     "dev": "concurrently -k \"npm run backend\" \"npm run frontend\" \"npm run electron\"",
-    "build-frontend": "npm --prefix frontend run build",
-    "build": "npm run build-frontend && electron-builder",
+    "build-frontend": "cross-env VITE_API_URL=http://localhost:3000/api npm --prefix frontend run build",
+    "build": "npm install && npm --prefix backend install && npm run build-frontend && electron-builder",
     "desktop": "npm run build"
   },
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "better-sqlite3": "^12.0.0",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "electron": "^36.2.0",
     "electron-builder": "^24.13.3",
     "wait-on": "^8.0.3"
@@ -28,12 +37,15 @@
   "build": {
     "appId": "com.dentist.clinic",
     "productName": "Dentist Clinic Manager",
+    "asar": false,
+    "npmRebuild": false,
     "directories": {
       "output": "dist"
     },
     "files": [
       "electron/**/*",
       "backend/**/*",
+      "node_modules/**/*",
       "frontend/dist/**/*",
       "database/**/*",
       "package.json"

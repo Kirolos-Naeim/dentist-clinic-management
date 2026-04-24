@@ -17,7 +17,7 @@ export const createServer = () => {
   const app = express();
 
   app.use(helmet({ contentSecurityPolicy: false }));
-  app.use(cors({ origin: env.frontendUrl }));
+  app.use(cors(env.nodeEnv === 'production' ? {} : { origin: env.frontendUrl }));
   app.use(express.json());
   app.use(morgan('dev'));
 
@@ -38,8 +38,8 @@ export const createServer = () => {
 };
 
 export const startServer = async () => {
-  await initializeDatabase();
-  await getDb();
+  initializeDatabase();
+  const db = getDb();
 
   const app = createServer();
 
