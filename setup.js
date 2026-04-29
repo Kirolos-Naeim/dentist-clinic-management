@@ -10,7 +10,6 @@ const rootDir = __dirname;
 const backendDir = path.join(rootDir, 'backend');
 const frontendDir = path.join(rootDir, 'frontend');
 const databaseDir = path.join(rootDir, 'database');
-const backendDataDir = path.join(backendDir, 'data');
 
 const runCommand = (command, args, cwd) => new Promise((resolve, reject) => {
   const child = spawn(command, args, {
@@ -58,7 +57,6 @@ const main = async () => {
     console.log('🦷 Dentist Clinic Management System setup started...');
 
     mkdirSync(databaseDir, { recursive: true });
-    mkdirSync(backendDataDir, { recursive: true });
 
     ensureEnvFile(backendDir);
     ensureEnvFile(frontendDir);
@@ -71,9 +69,8 @@ const main = async () => {
     await runCommand('npm', ['run', 'init-db'], rootDir);
 
     console.log('\n✅ Setup complete. Database initialized and sample data seeded.');
-    console.log(`Database folders ready:`);
+    console.log(`Database folder ready:`);
     console.log(`- ${path.relative(rootDir, databaseDir)}`);
-    console.log(`- ${path.relative(rootDir, backendDataDir)}`);
 
     await startApp();
   } catch (error) {
