@@ -152,7 +152,10 @@ To generate a real Windows `.exe`, run `npm run build` on Windows, or in a Windo
 
 ## Notes
 
-- Fully local and offline
-- No external APIs
-- Electron package config is already included
-- Installer target is `nsis`
+- Works fully locally without cloud services
+- SQLite makes it easy to move or back up the database file
+- After dependencies are installed once, the app works offline
+  <img width="1920" height="1080" alt="Screenshot (4)" src="https://github.com/user-attachments/assets/0b3a81a6-c2d7-44f5-af3d-afd0df6dd915" />
+<img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/517d0deb-30f7-4167-ad1d-de1be4f069c0" />
+<img width="1920" height="1080" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/96a840a1-73af-4896-86a9-e03e62306b31" />
+
